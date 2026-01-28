@@ -1,0 +1,30 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+
+  fastapi:
+    build: ./app
+    environment:
+      FASTAPI_KEY_BOT: "${FASTAPI_KEY_BOT}"
+      OLLAMA_URL: "http://ollama:11434"
+      OLLAMA_MODEL: "${OLLAMA_MODEL}"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - ollama
+
+  discordbot:
+    build: ./bot
+    environment:
+      goofbot_token: "${goofbot_token}"
+      FASTAPI_URL: "http://fastapi:8000/intake/discord/message"
+      FASTAPI_KEY_BOT: "${FASTAPI_KEY_BOT}"
+    depends_on:
+      - fastapi
+
+volumes:
+  ollama:
