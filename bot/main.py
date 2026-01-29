@@ -2,10 +2,9 @@ import discord
 import os
 import requests
 import httpx
+from pydantic import BaseModel
 
-
-
-FASTAPI_URL = "http://localhost:8000/intake/discord/message"
+FASTAPI_URL = "http://fastapi:8000/intake/discord/message"
 API_KEY = os.environ.get("FASTAPI_KEY_BOT")
 
 intents = discord.Intents.default()
@@ -19,7 +18,7 @@ client = discord.Client(intents=intents)
 
 @client.event
 async def on_ready():
-    print(f'We have logged in as {client.user}')
+    print(f'We have logged in as {client.user}', flush=True)
 
 @client.event
 async def on_message(message):
@@ -32,34 +31,41 @@ async def on_message(message):
         await message.add_reaction("🏳️‍🌈")
 
     if "!ask" in mess:
-        processed = mess.split("!ask", 1)
+        processed = mess.split("!goofbot", 1)
 
         if len(processed) > 1:
             prompt = processed[1].strip()
             payload = {
-                "platform": "discord",
-                "tenant_id": "123",
-                "message_id": str(message.id),
+                "message_id": message.id,
                 "channel_id": str(message.channel.id),
-                "author_id": str(message.author.id),
                 "author_name": str(message.author),
                 "prompt": prompt,
-                "created_at": str(message.created_at),
             }
 
-            resp = requests.post(
-                FASTAPI_URL,
-                json=payload,
-                headers={"x_api_key": API_KEY},
-                timeout=5
-            )
-            resp.raise_for_status()
-            reply = resp.json().get("reply", "")
+            try:
+                async with httpx.AsyncClient(
+                        timeout=httpx.Timeout(120.0, connect=5.0)
+                ) as http:
+                    resp = await http.post(
+                        FASTAPI_URL,
+                        json=payload,
+                        headers={"x-api-key": API_KEY},
+                    )
+            except httpx.ReadTimeout:
+                await message.channel.send("model had too much whiskey")
+                return
+            except httpx.RequestError:
+                await message.channel.send("error")
+                return
 
+            if resp.status_code != 200:
+                print("Fastapi error:", resp.status_code, resp.text, flush=True)
+                await message.channel.send("booty error")
+                return
+
+            reply = resp.json().get("reply","")
             if reply:
                 await message.channel.send(reply)
-
-            print("response:", resp.text)
 
 clientToken = os.environ.get('goofbot_token')
 #print(API_KEY)
