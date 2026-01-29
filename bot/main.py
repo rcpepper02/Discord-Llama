@@ -1,6 +1,5 @@
 import discord
 import os
-import requests
 import httpx
 from pydantic import BaseModel
 
