@@ -33,7 +33,7 @@ async def intake_discord(msg: DiscordMsgIn, x_api_key: str = Header(default=""))
                 "stream": False,
                 "messages": [
                     {"role": "system",
-                     "content": "You lack confidence. Respond concisely with extremely basic, almost caveman english."},
+                     "content": "You lack confidence. Respond concisely with extremely basic english."},
                     {"role": "user", "content": f"{msg.author_name}: {msg.prompt}"},
                 ],
             },
