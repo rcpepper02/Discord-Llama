@@ -34,7 +34,7 @@ async def on_message(message):
         if len(processed) > 1:
             prompt = processed[1].strip()
             payload = {
-                "message_id": message.id,
+                "message_id": str(message.id),
                 "channel_id": str(message.channel.id),
                 "author_name": str(message.author),
                 "prompt": prompt,
