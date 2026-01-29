@@ -11,7 +11,7 @@ services:
     environment:
       FASTAPI_KEY_BOT: "${FASTAPI_KEY_BOT}"
       OLLAMA_URL: "http://ollama:11434"
-      OLLAMA_MODEL: "${LLM_MODEL}"
+      LLM_MODEL: "${LLM_MODEL}"
     ports:
       - "8000:8000"
     depends_on:
