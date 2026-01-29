@@ -35,4 +35,4 @@ async def intake_discord(msg: DiscordMsgIn, x_api_key: str = Header(default = IN
 
     data = response.json()
 
-    return {"reply": data["message"]["content"].strip()}
+    return {"reply": (data.get("response")or "").strip()}
