@@ -1,7 +1,6 @@
 import discord
 import os
 import httpx
-from pydantic import BaseModel
 
 FASTAPI_URL = "http://fastapi:8000/intake/discord/message"
 API_KEY = os.environ.get("FASTAPI_KEY_BOT")
