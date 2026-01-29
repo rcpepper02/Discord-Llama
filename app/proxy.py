@@ -30,7 +30,7 @@ async def intake_discord(msg: DiscordMsgIn, x_api_key: str = Header(default = IN
     async with httpx.AsyncClient(timeout=120.0) as client:
         response = await client.post(
             "http://ollama:11434/api/generate",
-            json={"model": LLM_MODEL, "prompt": prompt, "stream": False},
+            json={"model": LLM_MODEL, "message": prompt, "stream": False},
         )
 
     data = response.json()
