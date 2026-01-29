@@ -28,7 +28,7 @@ async def on_message(message):
     if "gay" in mess:
         await message.add_reaction("🏳️‍🌈")
 
-    if "!ask" in mess:
+    if "!goofbot" in mess:
         processed = mess.split("!goofbot", 1)
 
         if len(processed) > 1:
