@@ -18,21 +18,29 @@ class DiscordMsgIn(BaseModel):
 
 
 @app.post("/intake/discord/message")
-async def intake_discord(msg: DiscordMsgIn, x_api_key: str = Header(default = INTERNAL_API_KEY)):
+async def intake_discord(msg: DiscordMsgIn, x_api_key: str = Header(default="")):
+    if not INTERNAL_API_KEY:
+        raise HTTPException(status_code=500, detail="FASTAPI_KEY_BOT not set")
     if x_api_key != INTERNAL_API_KEY:
         raise HTTPException(status_code=401, detail="Internal API key required")
 
-    prompt = [
-        {"role": "system", "content": "You lack confidence. Respond concisely with extremely basic, almost caveman english"},
-        {"role": "user", "content": f"{msg.author_name}: {msg.prompt}"}
-    ]
 
     async with httpx.AsyncClient(timeout=120.0) as client:
         response = await client.post(
-            "http://ollama:11434/api/generate",
-            json={"model": LLM_MODEL, "message": prompt, "stream": False},
+            "http://ollama:11434/api/chat",
+            json={
+                "model": LLM_MODEL,
+                "stream": False,
+                "messages": [
+                    {"role": "system",
+                     "content": "You lack confidence. Respond concisely with extremely basic, almost caveman english."},
+                    {"role": "user", "content": f"{msg.author_name}: {msg.prompt}"},
+                ],
+            },
         )
 
-    data = response.json()
+    if response.status_code != 200:
+        raise HTTPException(status_code=502, detail=response.text)
 
-    return {"reply": (data.get("response")or "").strip()}
+    data = response.json()
+    return {"reply": (data["message"]["content"] or "").strip()}

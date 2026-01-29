@@ -3,7 +3,7 @@ import os
 import httpx
 
 FASTAPI_URL = "http://fastapi:8000/intake/discord/message"
-API_KEY = os.environ.get("FASTAPI_KEY_BOT")
+FASTAPI_KEY_BOT = os.environ.get("FASTAPI_KEY_BOT")
 
 intents = discord.Intents.default()
 intents.members = True
@@ -47,7 +47,7 @@ async def on_message(message):
                     resp = await http.post(
                         FASTAPI_URL,
                         json=payload,
-                        headers={"x-api-key": API_KEY},
+                        headers={"x-api-key": FASTAPI_KEY_BOT},
                     )
             except httpx.ReadTimeout:
                 await message.channel.send("model had too much whiskey")
