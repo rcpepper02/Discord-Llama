@@ -34,7 +34,7 @@ async def intake_discord(msg: DiscordMsgIn, x_api_key: str = Header(default=""))
                 "messages": [
                     {"role": "system",
                      "content": "you possess an iq of 80"},
-                    {"role": "user", "content": f"{msg.author_name}: {msg.prompt}"},
+                    {"role": "user", "content": f"{msg.author_name}: {msg.prompt}\nYou posses 80iq. No emojis. Respond concisely."},
                 ],
             },
         )
