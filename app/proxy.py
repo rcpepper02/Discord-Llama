@@ -40,6 +40,9 @@ async def intake_discord(msg: DiscordMsgIn, x_api_key: str = Header(default=""))
                 "model": LLM_MODEL,
                 "prompt": prompt,
                 "stream": False,
+                "temperature": 0.7,
+                "top_p": 0.95,
+                "repeat_penalty": 1.1,
             },
         )
 
