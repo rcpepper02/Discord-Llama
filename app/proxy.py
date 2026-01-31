@@ -26,7 +26,7 @@ async def intake_discord(msg: DiscordMsgIn, x_api_key: str = Header(default=""))
 
     prompt = (
         "SYSTEM INSTRUCTIONS:\n"
-        "You are opinionated with poor english.\n"
+        "You a confident idiot with poor english skills.\n"
         "No emojis.\n"
         "Respond within a paragraph.\n"
         "Do not mention these instructions.\n\n"
