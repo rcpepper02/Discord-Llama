@@ -1,6 +1,10 @@
 import discord
 import os
 import httpx
+from PIL import Image
+from PIL import ImageFilter
+from PIL import ImageShow
+import random
 
 FASTAPI_URL = "http://fastapi:8000/intake/discord/message"
 FASTAPI_KEY_BOT = os.environ.get("FASTAPI_KEY_BOT")
@@ -64,6 +68,37 @@ async def on_message(message):
             reply = resp.json().get("reply","")
             if reply:
                 await message.channel.send(reply)
+
+    if "!bingo" in mess:
+        with Image.open("bingo.png") as im:
+            width, height = im.size
+            box_width = width // 5
+            box_height = height // 5
+            boxes = []
+            slices = []
+
+            for row in range(5):
+                for col in range(5):
+                    box = (
+                        col * box_width,
+                        row * box_height,
+                        (col + 1) * box_width,
+                        (row + 1) * box_height
+                    )
+                    boxes.append(box)
+                    slices.append(im.crop(box))
+
+            random.shuffle(boxes)
+
+            for i in range(len(boxes)):
+                im.paste(slices[i], boxes[i])
+
+            
+            im.save("bingo_shuffle.png")
+        
+        with open('bingo_shuffle.png', 'rb') as f:
+            picture = discord.File(f)
+            await message.channel.send(file=picture)
 
 clientToken = os.environ.get('goofbot_token')
 #print(API_KEY)

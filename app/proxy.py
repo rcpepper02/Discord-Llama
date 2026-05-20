@@ -3,6 +3,10 @@ import httpx
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel
 import os
+from PIL import Image
+from PIL import ImageFilter
+from PIL import ImageShow
+import random
 
 app = FastAPI()
 INTERNAL_API_KEY = os.environ.get("FASTAPI_KEY_BOT")
@@ -51,3 +55,5 @@ async def intake_discord(msg: DiscordMsgIn, x_api_key: str = Header(default=""))
 
     data = response.json()
     return {"reply": (data.get("response") or "").strip()}
+
+
