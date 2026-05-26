@@ -73,17 +73,17 @@ async def on_message(message):
         processed = mess.split("!bingo", 1)
         prompt = processed[1].strip()
 
-        global bingo_msg, boxes, box_width, box_height
+        global bingo_msg, boxes, box_width, box_height, slices, grid, freespace
 
         if "new" in prompt:
             with Image.open("bingo.png") as im:
                 width, height = im.size
                 box_width = width // 5
-                box_height = height // 5
+                box_height = height // 7
                 boxes = []
                 slices = []
 
-                for row in range(5):
+                for row in range(7):
                     for col in range(5):
                         box = (
                             col * box_width,
@@ -92,14 +92,21 @@ async def on_message(message):
                             (row + 1) * box_height
                         )
                         boxes.append(box)
-                        slices.append(im.crop(box))
+                        if row == 6 and col == 2:
+                            freespace = im.crop(box)
+                        else:
+                            slices.append(im.crop(box))
 
                 random.shuffle(slices)
+                grid = [boxes[i:i+5] for i in range(0, len(boxes), 5)]
 
-                for i in range(len(boxes)):
-                    im.paste(slices[i], boxes[i])
+                for i in range(len(boxes)-10):
+                    if i == 12:
+                        im.paste(freespace, boxes[i])
+                    else:
+                        im.paste(slices[i], boxes[i])
 
-                
+                im = im.crop([0,0,width, box_height*5])
                 im.save("bingo_shuffle.png")
     
             with open('bingo_shuffle.png', 'rb') as f:
@@ -111,10 +118,10 @@ async def on_message(message):
                 await message.channel.send("no bingo board")
                 return
 
-            row = int(prompt[-2])-1
-            col = int(prompt[-1])-1
+            col = int(prompt[-2])-1
+            row = int(prompt[-1])-1
 
-            grid = [boxes[i:i+5] for i in range(0, len(boxes), 5)]
+            #grid = [boxes[i:i+5] for i in range(0, len(boxes), 5)]
 
             bingo = Image.open("bingo_shuffle.png")
             x = Image.open("cross-x.png")
@@ -125,6 +132,36 @@ async def on_message(message):
             with open('bingo_shuffle.png', 'rb') as f:
                 picture = discord.File(f)
                 await bingo_msg.edit(attachments=[picture])
+        
+        elif "rm" in prompt:
+            if bingo_msg is None:
+                await message.channel.send("no bingo board")
+                return
+            
+            col = int(prompt[-2])-1
+            row = int(prompt[-1])-1
+
+            bingo = Image.open("bingo_shuffle.png")
+            slices_grid = [slices[i:i+5] for i in range(0, len(slices), 5)]
+            square = slices_grid[row][col]
+            box = grid[row][col]
+            bingo.paste(square, box[:2])
+            bingo.save("bingo_shuffle.png")
+            with open('bingo_shuffle.png', 'rb') as f:
+                picture = discord.File(f)
+                await bingo_msg.edit(attachments=[picture])
+
+        elif "repost" in prompt:
+            with open('bingo_shuffle.png', 'rb') as f:
+                picture = discord.File(f)
+                bingo_msg = await message.channel.send(file=picture)
+
+        else:
+            help_message = """!bingo new - new board
+            !bingo x <col><row> - add x
+            !bingo rm <col><row> - remove an x
+            !bingo repost - repost board"""
+            await message.channel.send(help_message)
 
 clientToken = os.environ.get('goofbot_token')
 #print(API_KEY)
